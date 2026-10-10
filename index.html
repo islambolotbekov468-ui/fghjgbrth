@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПСИХОЗ: КРЕСТИКИ-НОЛИКИ [ХОРОР]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Special Elite', monospace;
+            background-color: #030303;
+            color: #d1d5db;
+            min-height: 100vh;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .horror-font {
+            font-family: 'Creepster', cursive;
+            letter-spacing: 3px;
+        }
+
+        .blood-border {
+            border: 4px solid #7f1d1d;
+            box-shadow: inset 0 0 20px rgba(185, 28, 28, 0.8), 0 0 25px rgba(185, 28, 28, 0.6);
+        }
+
+        .horror-box {
+            background-color: #080606;
+            border: 4px solid #450a0a;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.95), 0 0 15px rgba(127, 29, 29, 0.3);
+        }
+
+        .horror-btn {
+            background: #0d0d0d;
+            border: 2px solid #3f0f0f;
+            color: #d1d5db;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .horror-btn:hover, .horror-btn:focus {
+            background: #2a0808;
+            border-color: #dc2626;
+            color: #ffffff;
+            outline: none;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.7);
+        }
+
+        .horror-btn-selected {
+            background: #4c0519 !important;
+            color: #ffffff !important;
+            border-color: #f43f5e !important;
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.8) !important;
+        }
+
+        /* Glitch effect */
+        .glitch-effect {
+            animation: glitchAnim 0.12s infinite;
+        }
+
+        @keyframes glitchAnim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px) skewX(5deg); filter: hue-rotate(180deg) invert(20%); }
+            40% { transform: translate(-5px, -5px) scale(1.02); filter: invert(40%); }
+            60% { transform: translate(5px, 5px) skewY(-5deg); filter: hue-rotate(-180deg); }
+            80% { transform: translate(5px, -5px) scale(0.98); }
+            100% { transform: translate(0); }
+        }
+
+        /* Violent Jumpscare Overlay */
+        #screamer-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #000000;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.01s ease;
+            overflow: hidden;
+        }
+
+        #screamer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+            animation: violentShake 0.02s infinite;
+        }
+
+        .screamer-face {
+            font-size: 35vw;
+            color: #ff0000;
+            animation: demonicSpasm 0.02s infinite alternate;
+            text-shadow: 0 0 80px #ff0000, 0 0 150px #ffffff, 0 0 200px #000000;
+            line-height: 1;
+            filter: contrast(500%) drop-shadow(0 0 50px red);
+        }
+
+        @keyframes demonicSpasm {
+            0% { transform: scale(1.1) translate(-25px, 25px) rotate(-18deg); filter: invert(0%) contrast(600%) brightness(1.5); }
+            25% { transform: scale(2.2) translate(30px, -30px) rotate(20deg); filter: invert(100%) contrast(1000%); }
+            50% { transform: scale(0.9) translate(-35px, -20px) rotate(-15deg); filter: invert(30%) hue-rotate(90deg); }
+            75% { transform: scale(2.5) translate(20px, 35px) rotate(25deg); filter: invert(80%) contrast(800%); }
+            100% { transform: scale(1.6) translate(-40px, -15px) rotate(-10deg); filter: invert(100%) contrast(1200%); }
+        }
+
+        @keyframes violentShake {
+            0% { transform: translate(30px, -30px) rotate(3deg); }
+            20% { transform: translate(-35px, 35px) rotate(-4deg); }
+            40% { transform: translate(-25px, -25px) rotate(5deg); }
+            60% { transform: translate(35px, 20px) rotate(-3deg); }
+            80% { transform: translate(-20px, 30px) rotate(4deg); }
+            100% { transform: translate(-18px, 25px) rotate(-2deg); }
+        }
+
+        .blood-splatter {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,0,0,0.8) 0%, rgba(139,0,0,0.95) 50%, rgba(0,0,0,1) 90%);
+            mix-blend-mode: hard-light;
+            pointer-events: none;
+        }
+
+        .scanlines {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.45) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.06),
+                rgba(0, 255, 0, 0.02),
+                rgba(0, 0, 255, 0.06)
+            );
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        .winning-cell {
+            background-color: #991b1b !important;
+            color: #ffffff !important;
+            animation: pulseBlood 0.25s infinite alternate;
+        }
+
+        @keyframes pulseBlood {
+            from { background-color: #7f1d1d; box-shadow: inset 0 0 20px #000; }
+            to { background-color: #dc2626; box-shadow: inset 0 0 35px #ff0000, 0 0 25px #ff0000; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-3 sm:p-6 min-h-screen relative">
+
+    <!-- SCANLINES OVERLAY -->
+    <div class="absolute inset-0 scanlines z-40"></div>
+
+    <!-- SCREAMER OVERLAY -->
+    <div id="screamer-overlay">
+        <div class="blood-splatter"></div>
+        <div id="screamer-face" class="screamer-face">👹</div>
+        <div id="screamer-text" class="horror-font text-4xl sm:text-7xl text-red-600 mt-2 tracking-widest text-center px-4 font-black glitch-effect">
+            УБИЙСТВО
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="w-full max-w-xl mx-auto horror-box p-4 sm:p-6 space-y-6 relative z-10 shadow-2xl">
+        
+        <!-- HEADER -->
+        <div class="text-center space-y-1 border-b-2 border-red-900 pb-3">
+            <h1 class="horror-font text-3xl sm:text-5xl text-red-600 tracking-wider glitch-effect">
+                КРОВАВЫЙ ПСИХОЗ
+            </h1>
+            <p class="text-[10px] text-red-700 tracking-widest font-bold">УЧАСТЬ АМИРА, САБИТА И АНВАРА / HARDCORE HORROR</p>
+        </div>
+
+        <!-- SCREEN 1: MAIN MENU -->
+        <div id="menu-screen" class="space-y-6">
+            <!-- Mode Selection -->
+            <div>
+                <div class="text-xs text-red-600 mb-2 flex items-center gap-2 font-bold">
+                    <span>⚠️</span> ВЫБЕРИТЕ ЖЕРТВУ:
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="setMode('pvp')" id="mode-pvp" class="horror-btn horror-btn-selected p-3 text-xs text-left flex items-center gap-2">
+                        <span>💀</span> С ДРУГОМ (1v1)
+                    </button>
+                    <button onclick="setMode('pve')" id="mode-pve" class="horror-btn p-3 text-xs text-left flex items-center gap-2">
+                        <span> </span> С ТВАРИЩЕМ ИЗ АДА
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bot Difficulty -->
+            <div id="difficulty-container" class="hidden space-y-3">
+                <div class="text-xs text-red-600 flex items-center gap-2 font-bold">
+                    <span>⚠️</span> ГЛУБИНА АДА:
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setDifficulty('easy')" id="diff-easy" class="horror-btn p-2 text-xs text-center text-[10px]">
+                        ШЕПОТ<br><span class="text-gray-500 text-[8px]">(СЛАБЫЙ)</span>
+                    </button>
+                    <button onclick="setDifficulty('medium')" id="diff-medium" class="horror-btn horror-btn-selected p-2 text-xs text-center text-[10px]">
+                        КОШМАР<br><span class="text-gray-500 text-[8px]">(ОПАСНЫЙ)</span>
+                    </button>
+                    <button onclick="setDifficulty('hard')" id="diff-hard" class="horror-btn p-2 text-xs text-center text-[10px]">
+                        АГОНИЯ<br><span class="text-gray-500 text-[8px]">(СМЕРТЕЛЬНЫЙ)</span>
+                    </button>
+                </div>
+                <div id="difficulty-desc" class="border border-red-900 p-2 text-[10px] text-red-400 leading-relaxed min-h-[42px] bg-red-950/40">
+                    * Демон жаждет крови Амира, Сабита и Анвара. Скримеры будут жестокими.
+                </div>
+            </div>
+
+            <!-- Symbol Selection -->
+            <div>
+                <div class="text-xs text-red-600 mb-2 flex items-center gap-2 font-bold">
+                    <span>⚠️</span> КРОВАВЫЙ ЗНАК:
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="setSymbol('X')" id="symbol-x" class="horror-btn horror-btn-selected p-3 text-sm text-center">
+                        <span class="text-red-600 font-bold">☠</span> (ЧЕРЕП)
+                    </button>
+                    <button onclick="setSymbol('O')" id="symbol-o" class="horror-btn p-3 text-sm text-center">
+                        <span class="text-red-500 font-bold">👁</span> (ГЛАЗ)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button onclick="startGame()" class="w-full py-4 horror-btn text-red-600 font-bold text-sm tracking-widest mt-2 hover:text-white border-red-800">
+                [ ВОЙТИ В ПРОКЛЯТУЮ КОМНАТУ ]
+            </button>
+        </div>
+
+        <!-- SCREEN 2: GAMEPLAY -->
+        <div id="game-screen" class="hidden space-y-4">
+            
+            <!-- Top Bar -->
+            <div class="flex items-center justify-between text-xs border-b border-red-900 pb-2">
+                <button onclick="returnToMenu()" class="horror-btn px-3 py-1.5 text-[10px]">
+                    &lt; СБЕЖАТЬ
+                </button>
+                <div id="turn-indicator" class="text-red-600 font-bold text-[11px]">
+                    ХОД: <span class="text-red-600">☠</span>
+                </div>
+            </div>
+
+            <!-- Score board -->
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px] border border-red-900 p-2 bg-black/60">
+                <div>
+                    <div id="score-x-label" class="text-gray-500">ИГРОК X</div>
+                    <div id="score-x" class="text-red-600 text-sm mt-1 font-bold">0</div>
+                </div>
+                <div>
+                    <div class="text-gray-500">МОГИЛЫ</div>
+                    <div id="score-draws" class="text-white text-sm mt-1 font-bold">0</div>
+                </div>
+                <div>
+                    <div id="score-o-label" class="text-gray-500">ИГРОК O</div>
+                    <div id="score-o" class="text-red-500 text-sm mt-1 font-bold">0</div>
+                </div>
+            </div>
+
+            <!-- Creepy Atmospheric Dialogue Box -->
+            <div class="blood-border p-3 min-h-[58px] bg-black text-[11px] leading-relaxed text-red-400 flex items-start gap-2">
+                <span class="text-red-600 text-xs mt-0.5">⚠️</span>
+                <span id="dialogue-text">Амир, Сабит и Анвар слышат жуткие шаги за дверью...</span>
+            </div>
+
+            <!-- 3x3 Game Board Grid -->
+            <div class="grid grid-cols-3 gap-3 aspect-square w-full max-w-[300px] mx-auto my-1">
+                <button onclick="makeMove(0)" id="cell-0" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(1)" id="cell-1" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(2)" id="cell-2" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(3)" id="cell-3" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(4)" id="cell-4" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(5)" id="cell-5" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(6)" id="cell-6" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(7)" id="cell-7" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+                <button onclick="makeMove(8)" id="cell-8" class="horror-btn text-3xl font-bold flex items-center justify-center aspect-square"></button>
+            </div>
+
+            <!-- Controls -->
+            <div class="pt-1">
+                <button onclick="resetBoard()" class="w-full py-2 horror-btn text-xs text-red-500 border-red-900">
+                    СМЫТЬ КРОВЬ 🔄
+                </button>
+            </div>
+        </div>
+
+        <!-- GAMEOVER MODAL -->
+        <div id="modal" class="hidden absolute inset-0 bg-black/95 z-50 p-6 flex flex-col items-center justify-center text-center space-y-4 border-4 border-red-900">
+            <div id="modal-icon" class="text-5xl text-red-600">💀</div>
+            <h2 id="modal-title" class="horror-font text-2xl text-red-600 tracking-wider">КОНЕЦ ЖИЗНИ</h2>
+            <p id="modal-text" class="text-xs text-gray-300 leading-relaxed max-w-xs border-y border-red-900 py-3">
+                Жертва разорвана в клочья.
+            </p>
+            <button onclick="closeModalAndReset()" class="horror-btn px-6 py-3 text-xs text-red-500 hover:text-white border-red-800 font-bold">
+                [ ВОСКРЕСНУТЬ В АДУ ]
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Horror Web Audio Synthesizer
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playHorrorSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(80, now);
+                osc.frequency.exponentialRampToValueAtTime(20, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'mark_x') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(60, now + 0.08);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'mark_o') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.12);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'screamer') {
+                /* EXTREME LOUD & DISTORTED MULTI-LAYER DEMONIC SCREAM SYNTHESIS */
+                const screamDuration = 1.2;
+
+                // Layer 1: High frequency shrill screech
+                for (let i = 0; i < 3; i++) {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.type = i % 2 === 0 ? 'sawtooth' : 'square';
+                    const startFreq = 800 + (i * 600);
+                    osc.frequency.setValueAtTime(startFreq, now);
+                    osc.frequency.linearRampToValueAtTime(3800 + (i * 200), now + 0.08);
+                    osc.frequency.setValueAtTime(200, now + 0.2);
+                    osc.frequency.linearRampToValueAtTime(4500, now + 0.4);
+                    osc.frequency.exponentialRampToValueAtTime(40, now + screamDuration);
+
+                    gain.gain.setValueAtTime(1.0, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + screamDuration);
+
+                    osc.start(now);
+                    osc.stop(now + screamDuration);
+                }
+
+                // Layer 2: Deep roaring bass vibration
+                const subOsc = audioCtx.createOscillator();
+                const subGain = audioCtx.createGain();
+                subOsc.connect(subGain);
+                subGain.connect(audioCtx.destination);
+                subOsc.type = 'sawtooth';
+                subOsc.frequency.setValueAtTime(150, now);
+                subOsc.frequency.linearRampToValueAtTime(30, now + screamDuration);
+                subGain.gain.setValueAtTime(1.0, now);
+                subGain.gain.linearRampToValueAtTime(0.01, now + screamDuration);
+                subOsc.start(now);
+                subOsc.stop(now + screamDuration);
+
+                // Layer 3: Harsh White Noise Burst
+                const bufferSize = audioCtx.sampleRate * screamDuration;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+
+                const whiteNoise = audioCtx.createBufferSource();
+                whiteNoise.buffer = buffer;
+                const noiseFilter = audioCtx.createBiquadFilter();
+                noiseFilter.type = 'highpass';
+                noiseFilter.frequency.value = 1000;
+
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.9, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, now + screamDuration);
+
+                whiteNoise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(audioCtx.destination);
+                whiteNoise.start(now);
+                whiteNoise.stop(now + screamDuration);
+            } else if (type === 'win') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.setValueAtTime(80, now + 0.2);
+                osc.frequency.setValueAtTime(40, now + 0.4);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.7);
+                osc.start(now);
+                osc.stop(now + 0.7);
+            }
+        }
+
+        let gameMode = 'pvp';
+        let difficulty = 'medium';
+        let playerSymbol = 'X';
+        let botSymbol = 'O';
+        let currentTurn = 'X';
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let isGameActive = false;
+        let scores = { X: 0, O: 0, draws: 0 };
+        let movesCount = 0;
+
+        const friends = ["Амир", "Сабит", "Анвар"];
+
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        const screamerFaces = ['👹', '🤡', '👺', '👁️‍🗨️', '💀', '👽', '☠️', '🩸', '👾'];
+
+        function getRandomFriend() {
+            return friends[Math.floor(Math.random() * friends.length)];
+        }
+
+        function setDialogue(text) {
+            document.getElementById('dialogue-text').innerText = text;
+        }
+
+        function setMode(mode) {
+            playHorrorSound('click');
+            gameMode = mode;
+            document.getElementById('mode-pvp').className = mode === 'pvp' ? 'horror-btn horror-btn-selected p-3 text-xs text-left flex items-center gap-2' : 'horror-btn p-3 text-xs text-left flex items-center gap-2';
+            document.getElementById('mode-pve').className = mode === 'pve' ? 'horror-btn horror-btn-selected p-3 text-xs text-left flex items-center gap-2' : 'horror-btn p-3 text-xs text-left flex items-center gap-2';
+
+            document.getElementById('mode-pvp').firstElementChild.innerText = mode === 'pvp' ? '💀' : ' ';
+            document.getElementById('mode-pve').firstElementChild.innerText = mode === 'pve' ? '💀' : ' ';
+
+            const diffContainer = document.getElementById('difficulty-container');
+            if (mode === 'pve') {
+                diffContainer.classList.remove('hidden');
+            } else {
+                diffContainer.classList.add('hidden');
+            }
+        }
+
+        function setDifficulty(diff) {
+            playHorrorSound('click');
+            difficulty = diff;
+            ['easy', 'medium', 'hard'].forEach(d => {
+                const btn = document.getElementById(`diff-${d}`);
+                btn.className = d === diff ? 'horror-btn horror-btn-selected p-2 text-xs text-center text-[10px]' : 'horror-btn p-2 text-xs text-center text-[10px]';
+            });
+
+            const desc = document.getElementById('difficulty-desc');
+            if (diff === 'easy') desc.innerText = '* Демон шепчет имя Амира, выжидая момент.';
+            if (diff === 'medium') desc.innerText = '* Сабит и Анвар чувствуют, как холод пробирает до костей.';
+            if (diff === 'hard') desc.innerText = '* СМЕРТЕЛЬНЫЙ АД. Никто из друзей не уйдет живым.';
+        }
+
+        function setSymbol(sym) {
+            playHorrorSound('click');
+            playerSymbol = sym;
+            botSymbol = sym === 'X' ? 'O' : 'X';
+
+            document.getElementById('symbol-x').className = sym === 'X' ? 'horror-btn horror-btn-selected p-3 text-sm text-center' : 'horror-btn p-3 text-sm text-center';
+            document.getElementById('symbol-o').className = sym === 'O' ? 'horror-btn horror-btn-selected p-3 text-sm text-center' : 'horror-btn p-3 text-sm text-center';
+        }
+
+        function startGame() {
+            playHorrorSound('click');
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            const f1 = friends[0];
+            const f2 = friends[1];
+
+            if (gameMode === 'pve') {
+                document.getElementById('score-x-label').innerText = playerSymbol === 'X' ? `${f1} (X)` : `ТВАРИЩ (X)`;
+                document.getElementById('score-o-label').innerText = playerSymbol === 'O' ? `${f1} (O)` : `ТВАРИЩ (O)`;
+            } else {
+                document.getElementById('score-x-label').innerText = `${f1} (X)`;
+                document.getElementById('score-o-label').innerText = `${f2} (O)`;
+            }
+
+            resetBoard();
+        }
+
+        function returnToMenu() {
+            playHorrorSound('click');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            scores = { X: 0, O: 0, draws: 0 };
+            updateScoreboard();
+        }
+
+        function resetBoard() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            isGameActive = true;
+            currentTurn = 'X';
+            movesCount = 0;
+
+            for (let i = 0; i < 9; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                cell.innerText = '';
+                cell.className = 'horror-btn text-3xl font-bold flex items-center justify-center aspect-square';
+            }
+
+            updateTurnIndicator();
+            const starter = getRandomFriend();
+            setDialogue(`Комната наполняется туманом... ${starter} делает первый шаг в темноту.`);
+
+            if (gameMode === 'pve' && botSymbol === 'X') {
+                setTimeout(makeBotMove, 500);
+            }
+        }
+
+        function updateTurnIndicator() {
+            const indicator = document.getElementById('turn-indicator');
+            indicator.innerHTML = `ХОД: <span class="text-red-600">${currentTurn}</span>`;
+        }
+
+        function triggerScreamer(customText) {
+            playHorrorSound('screamer');
+            const screamer = document.getElementById('screamer-overlay');
+            const screamerText = document.getElementById('screamer-text');
+            const screamerFace = document.getElementById('screamer-face');
+            
+            const currentFriend = getRandomFriend();
+            const phrasesWithFriends = [
+                `ГДЕ ТЫ, ${currentFriend}?!`,
+                `${currentFriend}, ОН СМОТРИТ НА ТЕБЯ!`,
+                `КОСТИ ${currentFriend} СЛОМАНЫ!`,
+                `КРИЧИ ГРОМЧЕ, ${currentFriend}!`,
+                `Я ВИЖУ ТЕБЯ, ${currentFriend}!`,
+                `СМЕРТЬ ДЛЯ ${currentFriend} БЛИЗКА!`
+            ];
+
+            const finalPhrase = customText || phrasesWithFriends[Math.floor(Math.random() * phrasesWithFriends.length)];
+
+            screamerText.innerText = finalPhrase;
+            screamerFace.innerText = screamerFaces[Math.floor(Math.random() * screamerFaces.length)];
+            screamer.classList.add('active');
+
+            // Violent Strobing & Distortion Flashes
+            let flashes = 0;
+            const flashInterval = setInterval(() => {
+                const colors = ['#ff0000', '#000000', '#ffffff', '#7f1d1d', '#990000', '#110000', '#4a0000'];
+                document.body.style.backgroundColor = colors[flashes % colors.length];
+                screamerFace.style.transform = `scale(${1 + Math.random() * 1.5}) rotate(${(Math.random() - 0.5) * 60}deg)`;
+                
+                flashes++;
+                if (flashes > 30) {
+                    clearInterval(flashInterval);
+                    document.body.style.backgroundColor = '#030303';
+                    screamerFace.style.transform = '';
+                    screamer.classList.remove('active');
+                }
+            }, 25);
+        }
+
+        function makeMove(index) {
+            if (!isGameActive || board[index] !== '') return;
+            if (gameMode === 'pve' && currentTurn === botSymbol) return;
+
+            movesCount++;
+
+            // 50% chance for a violent jumpscare with friends names on each move
+            if (movesCount >= 1 && Math.random() < 0.50) {
+                const f = getRandomFriend();
+                const jumpPhrases = [
+                    `АМИР УЖЕ В ПАНИКЕ!`,
+                    `САБИТ КРИЧИТ ОТ БОЛИ!`,
+                    `АНВАР РАЗОРВАН В КЛОЧЬЯ!`,
+                    `ХОД ${f} СТАЛ ПОСЛЕДНИМ!`
+                ];
+                triggerScreamer(jumpPhrases[Math.floor(Math.random() * jumpPhrases.length)]);
+            }
+
+            executeMove(index, currentTurn);
+
+            if (checkWin(currentTurn)) {
+                endGame(currentTurn);
+                return;
+            }
+
+            if (checkDraw()) {
+                endGame('draw');
+                return;
+            }
+
+            currentTurn = currentTurn === 'X' ? 'O' : 'X';
+            updateTurnIndicator();
+
+            if (gameMode === 'pve' && currentTurn === botSymbol && isGameActive) {
+                const f = getRandomFriend();
+                setDialogue(`* Демон шепчет за ухом у ${f}...`);
+                setTimeout(makeBotMove, 500);
+            } else {
+                const f = getRandomFriend();
+                const atmosphericLines = [
+                    `${f} чувствует холодное дыхание на затылке.`,
+                    `Тени вокруг ${f} сгущаются и тянут когти.`,
+                    `Кто-то царапает дверь изнутри, пугая ${f}.`,
+                    `Запах гниющей плоти окружает ${f}.`
+                ];
+                setDialogue(atmosphericLines[Math.floor(Math.random() * atmosphericLines.length)]);
+            }
+        }
+
+        function executeMove(index, symbol) {
+            board[index] = symbol;
+            const cell = document.getElementById(`cell-${index}`);
+            cell.innerText = symbol === 'X' ? '☠' : '👁';
+            cell.classList.add(symbol === 'X' ? 'text-red-600' : 'text-red-500');
+            playHorrorSound(symbol === 'X' ? 'mark_x' : 'mark_o');
+        }
+
+        function makeBotMove() {
+            if (!isGameActive) return;
+
+            let moveIndex = -1;
+
+            if (difficulty === 'easy') {
+                moveIndex = getRandomMove();
+            } else if (difficulty === 'medium') {
+                moveIndex = getBestWinningOrBlockingMove(botSymbol);
+                if (moveIndex === -1) moveIndex = getBestWinningOrBlockingMove(playerSymbol);
+                if (moveIndex === -1) moveIndex = getRandomMove();
+            } else if (difficulty === 'hard') {
+                moveIndex = getBestMinimaxMove();
+            }
+
+            if (moveIndex !== -1) {
+                executeMove(moveIndex, botSymbol);
+
+                if (checkWin(botSymbol)) {
+                    triggerScreamer("ДЕМОН ПОГЛОТИЛ ВСЕХ ИХ");
+                    endGame(botSymbol);
+                    return;
+                }
+
+                if (checkDraw()) {
+                    endGame('draw');
+                    return;
+                }
+
+                currentTurn = playerSymbol;
+                updateTurnIndicator();
+            }
+        }
+
+        function getRandomMove() {
+            const empty = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+            if (empty.length === 0) return -1;
+            return empty[Math.floor(Math.random() * empty.length)];
+        }
+
+        function getBestWinningOrBlockingMove(target) {
+            for (let combo of winningCombinations) {
+                let [a, b, c] = combo;
+                let vals = [board[a], board[b], board[c]];
+                if (vals.filter(v => v === target).length === 2 && vals.includes('')) {
+                    if (board[a] === '') return a;
+                    if (board[b] === '') return b;
+                    if (board[c] === '') return c;
+                }
+            }
+            return -1;
+        }
+
+        function getBestMinimaxMove() {
+            let bestScore = -Infinity;
+            let bestMove = -1;
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = botSymbol;
+                    let score = minimax(board, 0, false);
+                    board[i] = '';
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            return bestMove;
+        }
+
+        function minimax(newBoard, depth, isMaximizing) {
+            if (checkSpecificWin(newBoard, botSymbol)) return 10 - depth;
+            if (checkSpecificWin(newBoard, playerSymbol)) return depth - 10;
+            if (newBoard.every(v => v !== '')) return 0;
+
+            if (isMaximizing) {
+                let best = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (newBoard[i] === '') {
+                        newBoard[i] = botSymbol;
+                        best = Math.max(best, minimax(newBoard, depth + 1, false));
+                        newBoard[i] = '';
+                    }
+                }
+                return best;
+            } else {
+                let best = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (newBoard[i] === '') {
+                        newBoard[i] = playerSymbol;
+                        best = Math.min(best, minimax(newBoard, depth + 1, true));
+                        newBoard[i] = '';
+                    }
+                }
+                return best;
+            }
+        }
+
+        function checkSpecificWin(b, symbol) {
+            return winningCombinations.some(combo => combo.every(i => b[i] === symbol));
+        }
+
+        function checkWin(symbol) {
+            for (let combo of winningCombinations) {
+                if (combo.every(i => board[i] === symbol)) {
+                    combo.forEach(idx => {
+                        document.getElementById(`cell-${idx}`).classList.add('winning-cell');
+                    });
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkDraw() {
+            return board.every(c => c !== '');
+        }
+
+        function endGame(result) {
+            isGameActive = false;
+            const modal = document.getElementById('modal');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalTitle = document.getElementById('modal-title');
+            const modalText = document.getElementById('modal-text');
+
+            const f = getRandomFriend();
+
+            if (result === 'draw') {
+                scores.draws++;
+                playHorrorSound('win');
+                modalIcon.innerText = '⚰️';
+                modalTitle.innerText = 'ОБЩАЯ МОГИЛА';
+                modalText.innerText = `Амир, Сабит и Анвар погребены вместе. Никто не сбежал.`;
+                setDialogue(`* Ничья в склепе... Кости перемешались.`);
+            } else {
+                scores[result]++;
+                if (gameMode === 'pve') {
+                    if (result === playerSymbol) {
+                        playHorrorSound('win');
+                        modalIcon.innerText = '🩸';
+                        modalTitle.innerText = `${f} ВЫЖИЛ!`;
+                        modalText.innerText = `${f} чудом вырвал свою душу из лап демона.`;
+                        setDialogue(`* ВЫ СБЕЖАЛИ ИЗ АДА!`);
+                    } else {
+                        triggerScreamer(`АНВАР И САБИТ ПОГЛОЩЕНЫ`);
+                        modalIcon.innerText = '💀';
+                        modalTitle.innerText = 'ВСЕ УБИТЫ';
+                        modalText.innerText = `Демон разорвал Амира, Сабита и Анвара.`;
+                        setDialogue(`* Все друзья мертвы.`);
+                    }
+                } else {
+                    playHorrorSound('win');
+                    modalIcon.innerText = '🩸';
+                    modalTitle.innerText = `КРОВАВАЯ ПОБЕДА!`;
+                    modalText.innerText = `${f} одержал верх в жестокой бойне!`;
+                }
+            }
+
+            updateScoreboard();
+            setTimeout(() => {
+                modal.classList.remove('hidden');
+            }, 500);
+        }
+
+        function updateScoreboard() {
+            document.getElementById('score-x').innerText = scores.X;
+            document.getElementById('score-o').innerText = scores.O;
+            document.getElementById('score-draws').innerText = scores.draws;
+        }
+
+        function closeModalAndReset() {
+            playHorrorSound('click');
+            document.getElementById('modal').classList.add('hidden');
+            resetBoard();
+        }
+    </script>
+</body>
+</html>
